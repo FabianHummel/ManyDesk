@@ -1,0 +1,101 @@
+﻿<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ManyDesk</title>
+
+    <style>
+        body:has(#screenCapture) {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        #screenCapture {
+            width: 100%;
+            height: 100%;
+            /*object-fit: contain;
+            object-position: top left;*/
+        }
+    </style>
+</head>
+<body>
+    <h1>ManyDesk login</h1>
+
+    <form id="loginForm">
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <button type="submit">Login</button>
+    </form>
+    
+    <p id="error"></p>
+
+    <script>
+        function getImage() {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', 'screen');
+            xhr.responseType = 'blob';
+            xhr.send();
+            xhr.onload = function () {
+                const screenCapture = document.querySelector('#screenCapture');
+                screenCapture.src = URL.createObjectURL(xhr.response);
+                getImage();
+            };
+        }
+        
+        function setupManyDesk() {
+            document.body.innerHTML = `
+                <img src alt="Screen Capture" id="screenCapture">
+            `;
+
+            const screenCapture = document.querySelector('#screenCapture');
+
+            screenCapture.addEventListener('mousemove', function (event) {
+                const x = event.clientX / screenCapture.clientWidth;
+                const y = event.clientY / screenCapture.clientHeight;
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'mousemove');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({ x, y }));
+            });
+            
+            screenCapture.addEventListener('mousedown', function (event) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'mousedown');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({ button: event.button }));
+            });
+            
+            screenCapture.addEventListener('mouseup', function (event) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'mouseup');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({ button: event.button }));
+            });
+            
+            getImage();
+        }
+        
+        const loginForm = document.getElementById('loginForm');
+        loginForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(loginForm);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'login');
+            xhr.send(formData);
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    setupManyDesk();
+                } else {
+                    document.getElementById('error').textContent = 'Invalid password';
+                }
+            };
+        });
+    </script>
+</body>
+</html>
