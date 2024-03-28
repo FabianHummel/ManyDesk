@@ -20,6 +20,11 @@
             height: 100%;
             /*object-fit: contain;
             object-position: top left;*/
+            user-select: none;
+            -webkit-user-drag: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
     </style>
 </head>
@@ -55,6 +60,7 @@
             const screenCapture = document.querySelector('#screenCapture');
 
             screenCapture.addEventListener('mousemove', function (event) {
+                event.preventDefault();
                 const x = event.clientX / screenCapture.clientWidth;
                 const y = event.clientY / screenCapture.clientHeight;
                 const xhr = new XMLHttpRequest();
@@ -62,19 +68,44 @@
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify({ x, y }));
             });
-            
-            screenCapture.addEventListener('mousedown', function (event) {
+
+            window.addEventListener('mousedown', function (event) {
+                event.preventDefault();
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', 'mousedown');
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify({ button: event.button }));
             });
-            
-            screenCapture.addEventListener('mouseup', function (event) {
+
+            window.addEventListener('mouseup', function (event) {
+                event.preventDefault();
                 const xhr = new XMLHttpRequest();
                 xhr.open('POST', 'mouseup');
                 xhr.setRequestHeader('Content-Type', 'application/json');
                 xhr.send(JSON.stringify({ button: event.button }));
+            });
+
+            window.addEventListener('wheel', function (event) {
+                event.preventDefault();
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'wheel');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({ delta: event.deltaY }));
+            });
+            
+            window.addEventListener('keydown', function (event) {
+                event.preventDefault();
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'keydown');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({ key: event.key }));
+            });
+
+            window.addEventListener('keyup', function (event) {
+                const xhr = new XMLHttpRequest();
+                xhr.open('POST', 'keyup');
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.send(JSON.stringify({ key: event.key }));
             });
             
             getImage();

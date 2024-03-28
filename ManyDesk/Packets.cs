@@ -17,4 +17,19 @@ public class Packets
     {
         public int button { get; set; }
     }
+    
+    public class MouseWheel
+    {
+        public int delta { get; set; }
+    }
+    
+    public class KeyDown
+    {
+        public string key { get; set; }
+    }
+    
+    public class KeyUp
+    {
+        public string key { get; set; }
+    }
 }
